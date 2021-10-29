@@ -35,22 +35,38 @@ func (e *ExpiringLink) Generate(secret string) string {
 	return formatHash(expTime, e.Rounds, hash)
 }
 
-func (e *ExpiringLink) Check(hash, secret string) bool {
+type constError string
+
+func (c constError) Error() string { return string(c) }
+
+const (
+	CorruptHashError = constError("Corrupt Hash")
+	HashExpiredError = constError("Hash expired")
+	InvalidHashError = constError("Hash did not validate")
+)
+
+func (e *ExpiringLink) Check(hash, secret string) error {
 	part := strings.Split(hash, "g")
+	if len(part) != 3 {
+		return CorruptHashError
+	}
 	ts, err := strconv.ParseInt(part[0], 16, 64)
 	if err != nil {
-		return false
+		return CorruptHashError
 	}
 	if e.Epoch.Add(time.Second * time.Duration(ts)).Before(time.Now()) {
-		return false
+		return HashExpiredError
 	}
 	rounds, err := strconv.ParseInt(part[1], 16, 64)
 	if err != nil {
-		return false
+		return CorruptHashError
 	}
 	genHash := hashRounds(int(rounds), formatHash(uint64(ts), int(rounds), secret))
 	genFormatted := formatHash(uint64(ts), int(rounds), genHash)
-	return genFormatted == hash
+	if genFormatted == hash {
+		return nil
+	}
+	return InvalidHashError
 }
 
 func formatHash(age uint64, rounds int, hash string) string {

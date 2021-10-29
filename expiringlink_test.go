@@ -5,6 +5,18 @@ import (
 	"time"
 )
 
+func TestInvalidHash(t *testing.T) {
+	el := ExpiringLink{
+		Epoch:  epoch,
+		Expire: 10 * time.Second,
+		Rounds: 5,
+	}
+	if err := el.Check("ff", "25"); err != CorruptHashError {
+		t.Log(err.Error())
+		t.Fatal("Should have returned CorruptHashError for invalid hash")
+	}
+}
+
 func TestHashCheck(t *testing.T) {
 	el := ExpiringLink{
 		Epoch:  epoch,
@@ -13,33 +25,32 @@ func TestHashCheck(t *testing.T) {
 	}
 	for _, val := range hashTestStrings {
 		hash := el.Generate(val)
-		t.Log(hash)
-		if !el.Check(hash, val) {
+		if err := el.Check(hash, val); err != nil {
 			t.Logf("'%s' hashed to '%s' but didn't check", val, hash)
+			t.Logf("%s", err)
 			t.Fail()
 		}
-		if el.Check(hash, "UnusedSecretValue") {
+		if el.Check(hash, "UnusedSecretValue") == nil {
 			t.Logf("'%s' incorrectly checked", val)
 			t.Fail()
 		}
 	}
-	t.Fail()
 }
 
 func TestExpire(t *testing.T) {
 	el := ExpiringLink{
 		Epoch:  epoch,
-		Expire: 2,
+		Expire: 2 * time.Second,
 		Rounds: 5,
 	}
 	for _, val := range hashTestStrings {
 		hash := el.Generate(val)
-		if el.Check(hash, val) {
-			t.Log("Expired too soon")
+		if err := el.Check(hash, val); err != nil {
+			t.Logf("Should be valid but %s", err.Error())
 			t.Fail()
 		}
 		time.Sleep(3 * time.Second)
-		if el.Check(hash, val) {
+		if el.Check(hash, val) != HashExpiredError {
 			t.Log("Didn't expire")
 			t.Fail()
 		}
