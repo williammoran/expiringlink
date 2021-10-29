@@ -4,6 +4,7 @@ import (
 	"crypto/sha1"
 	"encoding/hex"
 	"fmt"
+	"math"
 	"strconv"
 	"strings"
 	"time"
@@ -80,9 +81,10 @@ func formatHash(age uint64, rounds int, hash string) string {
 }
 
 func hashRounds(rounds int, v string) string {
+	actualRounds := int(math.Pow(2, float64(rounds)))
 	hash := sha1.New()
 	chain := []byte(v)
-	for x := 0; x < rounds; x++ {
+	for x := 0; x < actualRounds; x++ {
 		hash.Write(chain)
 		chain = hash.Sum(nil)
 		hash.Reset()
