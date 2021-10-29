@@ -49,4 +49,67 @@ in expiration. Once the password is successfully reset the
 new random value will immediately invalidate all previous
 password reset links.
 
-See the test file for examples.
+## Detail of the problem statement
+
+There are many methods of creating these links. Some
+common ones:
+
+(Note: I'm going to use "DB" here to refer to any persistent
+storage. I understand fully that some people will assume
+that this means a relational database, but it could be
+anything that can do persisten storage)
+
+
+1. Store a URL and expiry with each account and provide
+   those when required.
+Pros:
+* Simple and effective
+Cons:
+* May result in a link that expires before it can be used
+  (rare)
+* May result in a DB write if a new link needs to be
+  generated with a new expirey
+
+2. Have a special store for link URLs
+Pros:
+* Almost as simple as #1, but no danger of link expiring
+  before it can be used
+Cons:
+* Complexity of another DB storage area
+* Extra DB write on each request
+* Possible DoS attacks
+* Extra work to prune expired URLs from the DB store
+
+3. Use encryption to include all needed data in the URL
+Pros:
+* Really secure, no extra DB access
+Cons:
+* Requires proper key rotation to be secure
+
+4. ExpiringLink
+Pros:
+* As simple as #1
+Cons:
+* Unproven
+
+## Usage example
+
+ExpiringLink doesn't do everything, it only generates the
+link with the embedded expiry. Here are some additional
+things that are needed to get the desired result.
+
+1. Add a ULR secret to the user data and update it with
+a random value any time the password is changed.
+
+2. Use the has provided by ExpiringLink as _part_ of the
+URL. The URL will also have to include something to
+identify the user to which the hash applies.
+Examples:
+/resetpassword?userid=5&hash=296c37g5gef7d38828b4aa5df43ef156e86a90b6c2823be37
+/resetpassword/5/296c37g5gef7d38828b4aa5df43ef156e86a90b6c2823be37
+
+Of course, exactly how you do this depends on you.
+
+3. Store the Epoch for ExpiringLink somewhere that will
+never change. It could be a const in your code.
+
