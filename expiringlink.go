@@ -26,6 +26,9 @@ type ExpiringLink struct {
 	// CPU. Can be changed at any time and will only
 	// apply to newly generated hashes.
 	Rounds int
+	// MaxRounds protects from DoS attacks by making hashes
+	// with more than the specified # of rounds invalid
+	MaxRounds int
 }
 
 func (e *ExpiringLink) Generate(secret string) string {
@@ -59,6 +62,9 @@ func (e *ExpiringLink) Check(hash, secret string) error {
 	}
 	rounds, err := strconv.ParseInt(part[1], 16, 64)
 	if err != nil {
+		return CorruptHashError
+	}
+	if e.MaxRounds > 0 && rounds > int64(e.MaxRounds) {
 		return CorruptHashError
 	}
 	genHash := hashRounds(int(rounds), formatHash(uint64(ts), int(rounds), secret))

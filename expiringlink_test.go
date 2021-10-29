@@ -5,6 +5,19 @@ import (
 	"time"
 )
 
+func TestMaxRounds(t *testing.T) {
+	el := ExpiringLink{
+		Epoch:     epoch,
+		Expire:    10 * time.Second,
+		Rounds:    5,
+		MaxRounds: 4,
+	}
+	hash := el.Generate("meow")
+	if err := el.Check(hash, "meow"); err != CorruptHashError {
+		t.Fatalf("Should have been corrupt but %s", err.Error())
+	}
+}
+
 func TestInvalidHash(t *testing.T) {
 	el := ExpiringLink{
 		Epoch:  epoch,
