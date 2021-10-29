@@ -74,7 +74,7 @@ Cons:
 ### 2. Have a special store for link URLs
 
 Pros:
-* Almost as simple as #1, but no danger of link expiring
+* No danger of link expiring
   before it can be used
   
 Cons:
