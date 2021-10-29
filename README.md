@@ -113,3 +113,4 @@ Of course, exactly how you do this depends on you.
 3. Store the Epoch for ExpiringLink somewhere that will
 never change. It could be a const in your code.
 
+See the example.go file ...
