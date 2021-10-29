@@ -57,7 +57,7 @@ common ones:
 (Note: I'm going to use "DB" here to refer to any persistent
 storage. I understand fully that some people will assume
 that this means a relational database, but it could be
-anything that can do persisten storage)
+anything that can do persistent storage)
 
 
 ### 1. Store a URL and expiry with each account and provide those when required.
