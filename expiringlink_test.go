@@ -5,6 +5,21 @@ import (
 	"time"
 )
 
+func TestTamperWithExpiry(t *testing.T) {
+	el := ExpiringLink{
+		Epoch:     epoch,
+		Expire:    10 * time.Second,
+		Rounds:    5,
+		MaxRounds: 32,
+	}
+	hash := el.Generate("meow")
+	hash = "9" + hash[1:]
+	if err := el.Check(hash, "meow"); err != InvalidHashError {
+		t.Logf("tampered hash: %s", hash)
+		t.Fatalf("Tampering with expiry should be invalid but %s", err.Error())
+	}
+}
+
 func TestMaxRounds(t *testing.T) {
 	el := ExpiringLink{
 		Epoch:     epoch,
