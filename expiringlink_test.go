@@ -36,7 +36,6 @@ func TestHashCheck(t *testing.T) {
 	}
 	for _, val := range hashTestStrings {
 		hash := el.Generate(val)
-		t.Log(hash)
 		if err := el.Check(hash, val); err != nil {
 			t.Logf("'%s' hashed to '%s' but didn't check", val, hash)
 			t.Logf("%s", err)
@@ -47,7 +46,6 @@ func TestHashCheck(t *testing.T) {
 			t.Fail()
 		}
 	}
-	t.Fail()
 }
 
 func TestExpire(t *testing.T) {
