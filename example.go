@@ -24,10 +24,8 @@ func init() {
 	}
 	pwResetEpoch = t
 	expiringLink = &ExpiringLink{
-		Epoch:     pwResetEpoch,
-		Expire:    24 * time.Hour,
-		Rounds:    8,
-		MaxRounds: 16,
+		Epoch:  pwResetEpoch,
+		Expire: 24 * time.Hour,
 	}
 }
 

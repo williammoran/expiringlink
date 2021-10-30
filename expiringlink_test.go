@@ -7,10 +7,8 @@ import (
 
 func TestTamperWithExpiry(t *testing.T) {
 	el := ExpiringLink{
-		Epoch:     epoch,
-		Expire:    10 * time.Second,
-		Rounds:    5,
-		MaxRounds: 32,
+		Epoch:  epoch,
+		Expire: 10 * time.Second,
 	}
 	hash := el.Generate("meow")
 	hash = "9" + hash[1:]
@@ -20,24 +18,10 @@ func TestTamperWithExpiry(t *testing.T) {
 	}
 }
 
-func TestMaxRounds(t *testing.T) {
-	el := ExpiringLink{
-		Epoch:     epoch,
-		Expire:    10 * time.Second,
-		Rounds:    5,
-		MaxRounds: 4,
-	}
-	hash := el.Generate("meow")
-	if err := el.Check(hash, "meow"); err != CorruptHashError {
-		t.Fatalf("Should have been corrupt but %s", err.Error())
-	}
-}
-
 func TestInvalidHash(t *testing.T) {
 	el := ExpiringLink{
 		Epoch:  epoch,
 		Expire: 10 * time.Second,
-		Rounds: 5,
 	}
 	if err := el.Check("ff", "25"); err != CorruptHashError {
 		t.Log(err.Error())
@@ -49,10 +33,10 @@ func TestHashCheck(t *testing.T) {
 	el := ExpiringLink{
 		Epoch:  epoch,
 		Expire: 24 * time.Hour,
-		Rounds: 5,
 	}
 	for _, val := range hashTestStrings {
 		hash := el.Generate(val)
+		t.Log(hash)
 		if err := el.Check(hash, val); err != nil {
 			t.Logf("'%s' hashed to '%s' but didn't check", val, hash)
 			t.Logf("%s", err)
@@ -63,13 +47,13 @@ func TestHashCheck(t *testing.T) {
 			t.Fail()
 		}
 	}
+	t.Fail()
 }
 
 func TestExpire(t *testing.T) {
 	el := ExpiringLink{
 		Epoch:  epoch,
 		Expire: 2 * time.Second,
-		Rounds: 5,
 	}
 	for _, val := range hashTestStrings {
 		hash := el.Generate(val)
