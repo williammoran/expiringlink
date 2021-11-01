@@ -27,27 +27,20 @@ This system is **theoretical** at this time. I'm waiting to
 hear if people much smarter at math than me can prove that
 it's not secure before calling it anything other than that.
 
-## Usage
+** Note on JWT **
 
-You need to store 1 piece of infomation globally, the
-Epoch value. The Epoch can be any date in the past, but
-must never change or it will invalidate the system. Values
-close to the present will result in smaller hashes.
+It is entirely possible to do the same thing as this
+library using JWT. The only minor advantages that this
+library has is that it generates links that are a bit
+shorter than a JWT token (although that's not likely to
+be an issue for most uses) and that it requires a little
+less code to be imported (which probably isn't an issue
+in 99% of cases either).
 
-The expiration and rounds can be changed at any time and
-will only affect tokens generated after the change
-(previously generated tokens will still validate correctly)
-
-In the target use case, each user would have a random value
-generated each time their password is changed (note, for
-security, this should be **random** and not tied to any
-other value) That random value is fed into the Generate()
-function creating a unique string with a builtin
-expiration. The user can generate as many pasword reset
-links as they like. Each one will be unique with a built
-in expiration. Once the password is successfully reset the
-new random value will immediately invalidate all previous
-password reset links.
+As a result, this library serves more as an example on
+how to implement than a direct "import and use me". You
+could literally replace the HMAC code with JWT code and
+end up with something that worked the same way.
 
 ## Detail of the problem statement
 
@@ -74,8 +67,7 @@ Cons:
 ### 2. Have a special store for link URLs
 
 Pros:
-* No danger of link expiring
-  before it can be used
+* No danger of link expiring before it can be used
   
 Cons:
 * Complexity of another DB storage area
@@ -95,9 +87,33 @@ Cons:
 
 Pros:
 * As simple as #1
+* Can be implemented such that no additional DB lookups are
+  required
 
 Cons:
-* Unproven
+* Isn't a standard, so won't impress your boss
+
+## Usage
+
+You need to store 1 piece of infomation globally, the
+Epoch value. The Epoch can be any date in the past, but
+must never change or it will invalidate the system. Values
+close to the present will result in smaller hashes.
+
+The expiration and can be changed at any time and
+will only affect tokens generated after the change
+(previously generated tokens will still validate correctly)
+
+In the target use case, each user would have a random value
+generated each time their password is changed (note, for
+security, this should be **random** and not tied to any
+other value) That random value is fed into the Generate()
+function creating a unique string with a builtin
+expiration. The user can generate as many pasword reset
+links as they like. Each one will be unique with a built
+in expiration. Once the password is successfully reset the
+new random value will immediately invalidate all previous
+password reset links.
 
 ## Usage example
 
@@ -108,7 +124,7 @@ things that are needed to get the desired result.
 1. Add a URL secret to the user data and update it with
 a random value any time the password is changed.
 
-2. Use the has provided by ExpiringLink as _part_ of the
+2. Use the hash provided by ExpiringLink as _part_ of the
 URL. The URL will also have to include something to
 identify the user to which the hash applies.
 
